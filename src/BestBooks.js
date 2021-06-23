@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Card from 'react-bootstrap/Card';
 import React ,{ Component } from 'react';
+import UpdateForm from './updateForm'
 
 class BestBooks extends Component {
 
@@ -21,7 +22,8 @@ class BestBooks extends Component {
             description: '',
             image_url: '',
             status: '',
-            modal: false
+            modal: false ,
+            updateModal : false
 
         }
     }
@@ -75,6 +77,15 @@ class BestBooks extends Component {
             })
         }
 
+
+        updateClose = () =>{
+            this.setState({
+                updateModal: false
+            })
+        }
+
+       
+        
         getBook = async (event) => {
             event.preventDefault();
             const BookFormModal = {
@@ -94,6 +105,24 @@ class BestBooks extends Component {
 
         }
 
+        updateShow = (idx) =>{
+            const updateBook = this.state.book.filter((val,index) => {
+                return idx === index ;
+            })
+            this.setState({
+                updateModal : true ,
+                index : idx ,
+                name : updateBook[0].name ,
+                description :updateBook[0].description,
+                image_url:updateBook[0].image_url,
+                status :updateBook[0].status,
+
+
+            })
+        }
+
+
+
 
         deleteHandle = async (index) => {
             const email = {
@@ -106,6 +135,22 @@ class BestBooks extends Component {
             })
         }
 
+
+        updateForm = async (e) =>{
+            e.preventDefault();
+            const bookInfo = {
+                name: this.state.name,
+                image_url: this.state.image_url,
+                email: this.props.auth0.user.email,
+                status: this.state.status,
+                description: this.state.description,
+            }
+            let booksInfo = await axios.put(`${this.state.server}/updateBook/${this.state.index}`, bookInfo)
+            this.setState({
+                book :booksInfo.data,
+                updateModal:false
+            })
+        }
         render() {
             return (
 
@@ -113,6 +158,21 @@ class BestBooks extends Component {
                     <Button variant="primary" onClick={this.show}>
                         add book
                     </Button>
+                    <UpdateForm 
+                    updateClose = {this.updateClose}
+                    updateModal = {this.state.updateModal}
+                    updateForm = {this.updateForm}
+                    image_url = {this.state.image_url}
+                    status = {this.state.status}
+                    description = {this.state.description}
+                    name = {this.state.name}
+                    newUrlInfo = {this.newUrl}
+                    newDescInfo= {this.newDesc}
+                    newNameInfo = {this.newName}
+                    newStatusInfo= {this.newStatus}
+
+                    updateShow = {this.updateShow}
+                    />
                     <Modal show={this.state.modal} onHide={this.close}>
                         <Modal.Dialog>
                             <Modal.Header closeButton />
@@ -167,6 +227,9 @@ class BestBooks extends Component {
                                     </Card.Text>
                                     <Button variant="primary" onClick={() => this.deleteHandle(index)}>
                                         Delete book
+                                    </Button>
+                                    <Button variant="primary" onClick={() => this.updateShow(index)}>
+                                        Update
                                     </Button>
                                 </Card.Body>
                             </Card>
