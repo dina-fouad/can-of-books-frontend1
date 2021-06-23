@@ -16,7 +16,7 @@ class BestBooks extends Component {
         this.state = {
             book: [],
             showBookCompenent: false,
-            server: 'http://localhost:3065',
+            server: process.env.REACT_APP_SERVER,
             name: '',
             description: '',
             image_url: '',
